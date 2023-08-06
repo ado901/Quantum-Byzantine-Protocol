@@ -1,0 +1,60 @@
+- BAS: null
+  INS: epr_EntanglementStage.START
+  LOG: start entanglement creation between receiver and sender
+  MSR: null
+  NOD:
+  - receiver
+  - sender
+  PTH:
+  - link_receiver_sender
+  QGR:
+    8747842253184:
+      is_entangled: false
+      qubit_ids:
+      - - sender
+        - 0
+      state:
+      - - !!python/complex 1.0
+        - !!python/complex 0.0
+      - - !!python/complex 0.0
+        - !!python/complex 0.0
+  QID:
+  - 0
+  - 1
+  SIT: 116221.0
+  TYP: null
+  WCT: '2023-08-04 16:28:32.505362'
+- BAS: null
+  INS: epr_EntanglementStage.FINISH
+  LOG: entanglement of type 0 created between receiver and sender
+  MSR: null
+  NOD:
+  - receiver
+  - sender
+  PTH:
+  - link_receiver_sender
+  QGR:
+    8747842253184:
+      is_entangled: false
+      qubit_ids:
+      - - sender
+        - 0
+      state:
+      - - !!python/complex 1.0
+        - !!python/complex 0.0
+      - - !!python/complex 0.0
+        - !!python/complex 0.0
+    8747842253459:
+      is_entangled: true
+      qubit_ids:
+      - - sender
+        - 1
+      - - receiver
+        - 0
+      state: null
+  QID:
+  - 0
+  - 1
+  SIT: 117221.0
+  TYP: epr_EntanglementType.CK
+  WCT: '2023-08-04 16:28:32.507241'
