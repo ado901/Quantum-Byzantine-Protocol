@@ -1,7 +1,7 @@
 from netqasm.sdk.external import NetQASMConnection, Socket
 from netqasm.sdk import EPRSocket
 from random import randint
-from byzantine.subroutines import Routine
+from subroutines import Routine
 # setub fast byzantine agreement
 def main(app_config=None):
     assert app_config is not None
