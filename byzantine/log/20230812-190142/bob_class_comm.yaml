@@ -1,0 +1,54 @@
+- HFL: /home/ado/project/byzantine/subroutines.py
+  HLN: 18
+  INS: SEND
+  LOG: 'Send classical message to alice: 0'
+  MSG: '0'
+  REC: alice
+  SEN: bob
+  SOD: 0
+  WCT: '2023-08-12 19:01:42.852889'
+- HFL: /home/ado/project/byzantine/subroutines.py
+  HLN: 19
+  INS: WAIT_RECV
+  LOG: Waiting for a classical message from alice...
+  MSG: null
+  REC: bob
+  SEN: alice
+  SOD: 0
+  WCT: '2023-08-12 19:01:42.852951'
+- HFL: /home/ado/project/byzantine/subroutines.py
+  HLN: 19
+  INS: RECV
+  LOG: 'Message received from alice: 0'
+  MSG: '0'
+  REC: bob
+  SEN: alice
+  SOD: 0
+  WCT: '2023-08-12 19:01:42.956063'
+- HFL: /home/ado/project/byzantine/subroutines.py
+  HLN: 33
+  INS: SEND
+  LOG: 'Send classical message to alice: 0'
+  MSG: '0'
+  REC: alice
+  SEN: bob
+  SOD: 0
+  WCT: '2023-08-12 19:01:42.971609'
+- HFL: /home/ado/project/byzantine/subroutines.py
+  HLN: 34
+  INS: WAIT_RECV
+  LOG: Waiting for a classical message from alice...
+  MSG: null
+  REC: bob
+  SEN: alice
+  SOD: 0
+  WCT: '2023-08-12 19:01:42.971683'
+- HFL: /home/ado/project/byzantine/subroutines.py
+  HLN: 34
+  INS: RECV
+  LOG: 'Message received from alice: 0'
+  MSG: '0'
+  REC: bob
+  SEN: alice
+  SOD: 0
+  WCT: '2023-08-12 19:01:42.971703'
