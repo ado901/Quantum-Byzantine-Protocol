@@ -19,7 +19,7 @@ def main(app_config=None):
         log_config=app_config.log_config,
         epr_sockets=eprlist,
     )
-    bi= 1
+    bi= 0
     routine=Routine(socketlist, eprlist,bi)
     routine.start_routine()
     print("Bob's result is: ", routine.result)
