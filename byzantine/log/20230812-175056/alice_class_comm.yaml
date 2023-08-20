@@ -1,9 +1,0 @@
-- HFL: /home/ado/project/byzantine/app_alice.py
-  HLN: 23
-  INS: SEND
-  LOG: 'Send classical message to bob: 0'
-  MSG: '0'
-  REC: bob
-  SEN: alice
-  SOD: 0
-  WCT: '2023-08-12 17:50:56.632282'
