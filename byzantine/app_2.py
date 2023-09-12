@@ -21,7 +21,7 @@ def main(app_config=None):
         epr_sockets=eprlist,
     )
     bi= randint(0,1)
-    routine = Routine(socketlist, socketlist,bi,str(2))
+    routine = Routine(socketlist,alice, eprlist,bi,str(2))
     with alice:
         routine.start_routine()
     print("2's result is: ", routine.result)

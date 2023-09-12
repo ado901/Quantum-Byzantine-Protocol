@@ -9,6 +9,8 @@ src_alice = r"app_alice.py"
 src_bob = r"app_bob.py"
 
 n = 5
+print(n/3)
+print((2*n)/3)
 import os, glob
 for filename in glob.glob("byzantine/app_*"):
     os.remove(filename)
@@ -40,7 +42,7 @@ def main(app_config=None):
         epr_sockets=eprlist,
     )
     bi= randint(0,1)
-    routine = Routine(socketlist, socketlist,bi,str({i}))
+    routine = Routine(socketlist,alice, eprlist,bi,str({i}))
     with alice:
         routine.start_routine()
     print("{i}'s result is: ", routine.result)

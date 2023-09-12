@@ -1,52 +1,69 @@
+from time import sleep
 from netqasm.sdk.external import NetQASMConnection, Socket
 from netqasm.sdk import EPRSocket,Qubit
+from netqasm.sdk.classical_communication.message import StructuredMessage
 from random import randint
 
 class Routine:
-    def __init__(self, socket: list[Socket], epr_socket: list[EPRSocket], bi: int, name:str):
+    def __init__(self, socket: list[Socket],conn, epr_socket: list[EPRSocket], bi: int, name:str):
         self._name= name
         self._sockets = socket
         self._epr_socket = epr_socket
         self._bi = bi
         self.other_bi = []
         self.result=-1
+        self._conn=conn
         k=2
     
     def subroutine_1(self):
-        print(f"subroutine_1 for {self._name}")
+        """ print(f"subroutine_1 for {self._name}") """
         x=0
+        x+=self._bi
         for socket in self._sockets:
             
             socket.send(str(self._bi))
-            x+=int(socket.recv())
+            other_bi=int(socket.recv())
+            self.other_bi.append(other_bi)
+            x+=int(other_bi)
         print(f"subroutine_1 for {self._name} is {x}")
         if x < (len(self.other_bi)+1)/3:
+            """ print(f'a {self._name}') """
             self._bi=0
         elif x> (2*len(self.other_bi)+1)/3:
+            """ print(f'b {self._name}') """
             self._bi=1
         else:
-            bi= randint(0,1) #QOCC
+            print(f'start QOCC for {self._name}')
+            self._bi= self.quantumObliviousCoinFlip() #QOCC
     def subroutine_2(self):
-        print(f"subroutine_2 for {self._name}")
+        #print(f"subroutine_2 for {self._name}")
         x=0
+        x+=self._bi
         self.other_bi = []
         for socket in self._sockets:
 
             socket.send(str(self._bi))
-            x+=int(socket.recv())
+            other_bi=int(socket.recv())
+            self.other_bi.append(other_bi)
+            x+=int(other_bi)
         if x < (len(self.other_bi)+1)/3:
+            """ print(f"c {self._name}") """
             return 0
         elif x> (2*len(self.other_bi)+1)/3:
+            """ print(f"d {self._name}") """
             self._bi=1
         
     def subroutine_3(self):
-        print(f"subroutine_3 for {self._name}")
+        """ print(f"subroutine_3 for {self._name}") """
         x=0
         self.other_bi = []
+        x+=self._bi
         for socket in self._sockets:
 
             socket.send(str(self._bi))
-            x+=int(socket.recv())
+            other_bi=int(socket.recv())
+            self.other_bi.append(other_bi)
+            x+=int(other_bi)
         print(f"subroutine_3 for {self._name} is {x}")
         if x < (len(self.other_bi)+1)/3:
             self._bi=0
@@ -64,7 +81,61 @@ class Routine:
                 break
             
     def quantumObliviousCoinFlip(self):
+        leader=0
+        if int(self._name)==leader:
+            
+            qubit0=Qubit(self._conn)
+            qubit0.H()
+            ghz=[]
+            ghz.append(qubit0)
+            for i in range(0 ,len(self._epr_socket)):
+                qubit=Qubit(self._conn)
+                ghz[i].cnot(qubit)
+                ghz.append(qubit)
+            ghz=ghz[1::]
+            print(f'lunghezza epr socket {len(self._epr_socket)}')
+            for i,epr in enumerate(self._epr_socket):
+                print(f'{i} bbbbb')
+                e=epr.create_keep()[0]
+                ghz[i].cnot(e)
+                ghz[i].H()
+                
+                m1=ghz[i].measure()
+                
+                m2=e.measure()
+                
+                self._conn.flush()
+                self._conn.flush()
+                self._conn.flush()
+                self._conn.flush()
+                print(f'{i} m1 {m1}')
+                print(f'{i} m2 {m2}')
+                m1,m2 = int(m1),int(m2)
+                self._sockets[i].send_structured(StructuredMessage("Corrections", (m1, m2)))  # type: ignore
+                print(f'sent corrections to {self._sockets[i].remote_app_name}')
+            m= qubit0.measure()
+            self._conn.flush()
+            return int(m) # type: ignore
+        else:
+            print(f"{self._name} wait for epr from leader")
+            epr=self._epr_socket[leader].recv_keep()[0]
+            sleep(1)
+            print(f"{self._name} received epr from leader")
+            self._conn.flush()
+            print(f"{self._name} wait for corrections from leader")
+            m1, m2 = self._sockets[leader].recv_structured().payload
+            print(f"{self._name} received corrections from leader")
+            if m2 == 1:
+                epr.X()
+            if m1 == 1:
+                epr.Z()
+            m= epr.measure()
+            self._conn.flush()
+            return int(m) # type: ignore
+                
+                
+                
+                
+            
         prova=[]
-        for i in range(len(self._epr_socket)+1):
-            prova.append(Qubit())
-        return randint(0,1) #QOCC
+        
