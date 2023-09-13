@@ -1,15 +1,15 @@
 from time import sleep
 from netqasm.sdk.external import NetQASMConnection, Socket
-from netqasm.sdk import EPRSocket,Qubit
+from netqasm.sdk import EPRSocket,Qubit,futures
 from netqasm.sdk.classical_communication.message import StructuredMessage
 from random import randint
 
 class Routine:
-    def __init__(self, socket: list[Socket],conn, epr_socket: list[EPRSocket], bi: int, name:str):
+    def __init__(self, socket: list[Socket],conn, epr_socket: list[EPRSocket], name:str):
         self._name= name
         self._sockets = socket
         self._epr_socket = epr_socket
-        self._bi = bi
+        self._bi = int(name)%2
         self.other_bi = []
         self.result=-1
         self._conn=conn
@@ -34,7 +34,7 @@ class Routine:
             self._bi=1
         else:
             print(f'start QOCC for {self._name}')
-            self._bi= self.quantumObliviousCoinFlip() #QOCC
+            self._bi= self.quantumCoin() #QOCC
     def subroutine_2(self):
         #print(f"subroutine_2 for {self._name}")
         x=0
@@ -80,7 +80,7 @@ class Routine:
                 self.result=1
                 break
             
-    def quantumObliviousCoinFlip(self):
+    def quantumCoin(self):
         leader=0
         if int(self._name)==leader:
             
@@ -88,13 +88,12 @@ class Routine:
             qubit0.H()
             ghz=[]
             ghz.append(qubit0)
-            for i in range(0 ,len(self._epr_socket)):
+            for i in range(0 ,len(self._epr_socket)): # genero GHZ
                 qubit=Qubit(self._conn)
                 ghz[i].cnot(qubit)
                 ghz.append(qubit)
-            ghz=ghz[1::]
-            print(f'lunghezza epr socket {len(self._epr_socket)}')
-            for i,epr in enumerate(self._epr_socket):
+            ghz=ghz[1::] # rimuovo il primo qubit che dovrà misurare il leader
+            for i,epr in enumerate(self._epr_socket): # comincio il teleport per mandare i qubit ai vari nodi
                 print(f'{i} bbbbb')
                 e=epr.create_keep()[0]
                 ghz[i].cnot(e)
@@ -104,9 +103,6 @@ class Routine:
                 
                 m2=e.measure()
                 
-                self._conn.flush()
-                self._conn.flush()
-                self._conn.flush()
                 self._conn.flush()
                 print(f'{i} m1 {m1}')
                 print(f'{i} m2 {m2}')
@@ -119,9 +115,8 @@ class Routine:
         else:
             print(f"{self._name} wait for epr from leader")
             epr=self._epr_socket[leader].recv_keep()[0]
-            sleep(1)
             print(f"{self._name} received epr from leader")
-            self._conn.flush()
+            
             print(f"{self._name} wait for corrections from leader")
             m1, m2 = self._sockets[leader].recv_structured().payload
             print(f"{self._name} received corrections from leader")
