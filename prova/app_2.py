@@ -12,16 +12,16 @@ def main(app_config=None, phi=0.0, theta=0.0):
     app_logger = get_new_app_logger(app_name="sender", log_config=log_config)
 
     # Create a socket to send classical information
-    socket = Socket("sender", "receiver", log_config=log_config)
+    """ socket = Socket("1", "0", log_config=log_config)
 
     # Create a EPR socket for entanglement generation
-    epr_socket = EPRSocket("receiver")
+    epr_socket = EPRSocket("0") """
 
     print("`sender` will start to teleport a qubit to `receiver`")
 
     # Initialize the connection to the backend
     sender = NetQASMConnection(
-        app_name=app_config.app_name, log_config=log_config, epr_sockets=[epr_socket], max_qubits=7
+        app_name=app_config.app_name, log_config=log_config, epr_sockets=[], max_qubits=8
     )
     with sender:
         # Create a qubit to teleport
@@ -33,6 +33,9 @@ def main(app_config=None, phi=0.0, theta=0.0):
         q4 = Qubit(sender)
         q5 = Qubit(sender)
         q6 = Qubit(sender)
+        q7 = Qubit(sender)
+        q8 = Qubit(sender)
+
         
         m1 = q1.measure()
         sender.flush()
@@ -44,12 +47,19 @@ def main(app_config=None, phi=0.0, theta=0.0):
         sender.flush()
         
         m4 = q4.measure()
+
+        sender.flush()
         m5 = q5.measure()
+        sender.flush()
         m6 = q6.measure()
+        sender.flush()
+        m7 = q7.measure()
+        sender.flush()
+        m8 = q8.measure()
         sender.flush()
         
         
-        print(int(m1),int(m2))
+        print(int(m1),int(m2),int(m3),int(m4),int(m5),int(m6),int(m7),int(m8))
         
         """ # Create EPR pairs
         epr = epr_socket.create_keep(1)
