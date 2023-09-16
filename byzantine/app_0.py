@@ -9,7 +9,7 @@ def main(app_config=None):
     socketlist: list[Socket]=[]
     name="0"
     
-    for i in range(5):
+    for i in range(7): # qui invece l'eprsocket va fatto con tutti gli altri nodi
         if i!=0:
             eprlist.append(EPRSocket(str(i)))
             socketlist.append(Socket(name, str(i), log_config=app_config.log_config)) 
@@ -17,7 +17,7 @@ def main(app_config=None):
         app_name=app_config.app_name,
         log_config=app_config.log_config,
         epr_sockets=eprlist,
-        max_qubits=10,)
+        max_qubits=14,)
     while (True):
         #routine 1
         x=0
@@ -37,7 +37,7 @@ def main(app_config=None):
             
             
             print(f'start QOCC for 0')
-            with conn:
+            with conn: #grande differenza rispetto agli altri: genera stato ghz e lo distribuisce con teleport
                 count=0
                 q0=Qubit(conn)
                 count+=1

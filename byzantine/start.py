@@ -5,7 +5,7 @@ import shutil
 import os
 import yaml
 
-n = 5
+n = 7
 max_qubit=2*n
 print(n/3)
 print((2*n)/3)
@@ -17,13 +17,13 @@ for filename in glob.glob("*.yaml"):
 
 for i in range(n):
     connection=f'''
-    eprlist.append(EPRSocket("{0}"))
+    eprlist.append(EPRSocket("{0}")) # necessita solo di un eprsocket su 0
     for i in range({n}):
         if i!={i}:
             socketlist.append(Socket(name, str(i), log_config=app_config.log_config)) '''
     qc= f'''
             print(f'start QOCC for {i}')
-            with conn:
+            with conn: # differenza rispetto al nodo 0: riceve lo stato ghz e basta
                 print(f'start QC for {i}')
                 e=eprlist[0].recv_keep()[0]
                 m1, m2 = socketlist[0].recv_structured().payload # type: ignore
@@ -40,7 +40,7 @@ for i in range(n):
         qc= f'''
             
             print(f'start QOCC for {i}')
-            with conn:
+            with conn: #grande differenza rispetto agli altri: genera stato ghz e lo distribuisce con teleport
                 count=0
                 q0=Qubit(conn)
                 count+=1
@@ -74,13 +74,13 @@ for i in range(n):
                 print(f'count is {{count}}')
             bi=int(m)'''
         connection=f'''
-    for i in range({n}):
+    for i in range({n}): # qui invece l'eprsocket va fatto con tutti gli altri nodi
         if i!={i}:
             eprlist.append(EPRSocket(str(i)))
             socketlist.append(Socket(name, str(i), log_config=app_config.log_config)) '''
         
     
-    with open(f'app_{i}.py', 'w') as f:
+    with open(f'app_{i}.py', 'w') as f: #GENERO I FILE PER L'APPLICAZIONE, le differenze stanno solo tra il nodo 0 (che distribuisce lo stato ghz) e gli altri
         f.write(f'''from netqasm.sdk.external import NetQASMConnection, Socket
 from netqasm.sdk import EPRSocket, build_types, Qubit
 from netqasm.sdk.classical_communication.message import StructuredMessage
@@ -151,7 +151,7 @@ with open('network.yaml', 'r') as file:
     yamlnetwork= yaml.safe_load(file)
 
 nodesreplace=[]
-for i, node in enumerate(yamlnetwork['nodes']):
+for i, node in enumerate(yamlnetwork['nodes']): #setto i qubit (dovrebbero combaciare col parametro max_qubits) dentro lo yaml della rete
         qubits=[]
         for j in range(max_qubit):
             qubits.append({'id':j,'t1':0,'t2':0})

@@ -9,15 +9,15 @@ def main(app_config=None):
     socketlist: list[Socket]=[]
     name="2"
     
-    eprlist.append(EPRSocket("0"))
-    for i in range(5):
+    eprlist.append(EPRSocket("0")) # necessita solo di un eprsocket su 0
+    for i in range(7):
         if i!=2:
             socketlist.append(Socket(name, str(i), log_config=app_config.log_config)) 
     conn=NetQASMConnection(
         app_name=app_config.app_name,
         log_config=app_config.log_config,
         epr_sockets=eprlist,
-        max_qubits=10,)
+        max_qubits=14,)
     while (True):
         #routine 1
         x=0
@@ -36,7 +36,7 @@ def main(app_config=None):
         else:
             
             print(f'start QOCC for 2')
-            with conn:
+            with conn: # differenza rispetto al nodo 0: riceve lo stato ghz e basta
                 print(f'start QC for 2')
                 e=eprlist[0].recv_keep()[0]
                 m1, m2 = socketlist[0].recv_structured().payload # type: ignore
