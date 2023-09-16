@@ -5,7 +5,7 @@ import shutil
 import os
 import yaml
 
-n = 7
+n = 3
 max_qubit=2*n
 print(n/3)
 print((2*n)/3)
@@ -34,7 +34,8 @@ for i in range(n):
                     e.Z()
                 m= e.measure()
                 conn.flush()
-            bi=int(m)'''
+            bi=int(m)
+            qubitsnetwork={{'received':{{'ghz':m1, 'epr':m2}}, 'corrected':bi}}'''
             
     if i == 0:
         qc= f'''
@@ -67,6 +68,7 @@ for i in range(n):
                     print(f'measured m2')
                     conn.flush()
                     m1,m2= int(m1), int(m2)
+                    qubitsnetwork.append({{socketlist[i].remote_app_name: {{'ghz':m1, 'epr':m2}}}})
                     socketlist[i].send_structured(StructuredMessage("Corrections", (m1, m2))) # type: ignore
                     print(f"sent {{m1}} and {{m2}} to {{socketlist[i].remote_app_name}}")
                 m=q0.measure()
@@ -91,6 +93,7 @@ def main(app_config=None):
     eprlist:list[EPRSocket]=[]
     socketlist: list[Socket]=[]
     name="{i}"
+    {'qubitsnetwork=[]' if i==0 else 'qubitsnetwork=None'}
     {connection}
     conn=NetQASMConnection(
         app_name=app_config.app_name,
@@ -127,6 +130,10 @@ def main(app_config=None):
         print(f"subroutine_2 for {i} is " + str(x))
         if x < (len(other_bi)+1)/3:
             print(f'{i}s result is 0')
+            return {{
+                "result": 0,
+                'qubitsnetwork': qubitsnetwork
+            }}
             break
         elif x> (2*(len(other_bi)+1))/3:
             bi=1
@@ -145,6 +152,10 @@ def main(app_config=None):
             bi=0
         elif x> (2*(len(other_bi)+1))/3:
             print(f'{i}s result is 1')
+            return {{
+                "result": 1,
+                'qubitsnetwork': qubitsnetwork
+            }}
             break''')
 os.system('''netqasm init''')
 with open('network.yaml', 'r') as file:

@@ -8,16 +8,17 @@ def main(app_config=None):
     eprlist:list[EPRSocket]=[]
     socketlist: list[Socket]=[]
     name="1"
+    qubitsnetwork=None
     
     eprlist.append(EPRSocket("0")) # necessita solo di un eprsocket su 0
-    for i in range(7):
+    for i in range(3):
         if i!=1:
             socketlist.append(Socket(name, str(i), log_config=app_config.log_config)) 
     conn=NetQASMConnection(
         app_name=app_config.app_name,
         log_config=app_config.log_config,
         epr_sockets=eprlist,
-        max_qubits=14,)
+        max_qubits=6,)
     while (True):
         #routine 1
         x=0
@@ -48,6 +49,7 @@ def main(app_config=None):
                 m= e.measure()
                 conn.flush()
             bi=int(m)
+            qubitsnetwork={'received':{'ghz':m1, 'epr':m2}, 'corrected':bi}
             
         
         # routine 2
@@ -61,6 +63,10 @@ def main(app_config=None):
         print(f"subroutine_2 for 1 is " + str(x))
         if x < (len(other_bi)+1)/3:
             print(f'1s result is 0')
+            return {
+                "result": 0,
+                'qubitsnetwork': qubitsnetwork
+            }
             break
         elif x> (2*(len(other_bi)+1))/3:
             bi=1
@@ -79,4 +85,8 @@ def main(app_config=None):
             bi=0
         elif x> (2*(len(other_bi)+1))/3:
             print(f'1s result is 1')
+            return {
+                "result": 1,
+                'qubitsnetwork': qubitsnetwork
+            }
             break

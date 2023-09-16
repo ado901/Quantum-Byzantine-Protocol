@@ -8,8 +8,9 @@ def main(app_config=None):
     eprlist:list[EPRSocket]=[]
     socketlist: list[Socket]=[]
     name="0"
+    qubitsnetwork=[]
     
-    for i in range(7): # qui invece l'eprsocket va fatto con tutti gli altri nodi
+    for i in range(3): # qui invece l'eprsocket va fatto con tutti gli altri nodi
         if i!=0:
             eprlist.append(EPRSocket(str(i)))
             socketlist.append(Socket(name, str(i), log_config=app_config.log_config)) 
@@ -17,7 +18,7 @@ def main(app_config=None):
         app_name=app_config.app_name,
         log_config=app_config.log_config,
         epr_sockets=eprlist,
-        max_qubits=14,)
+        max_qubits=6,)
     while (True):
         #routine 1
         x=0
@@ -64,6 +65,7 @@ def main(app_config=None):
                     print(f'measured m2')
                     conn.flush()
                     m1,m2= int(m1), int(m2)
+                    qubitsnetwork.append({socketlist[i].remote_app_name: {'ghz':m1, 'epr':m2}})
                     socketlist[i].send_structured(StructuredMessage("Corrections", (m1, m2))) # type: ignore
                     print(f"sent {m1} and {m2} to {socketlist[i].remote_app_name}")
                 m=q0.measure()
@@ -83,6 +85,10 @@ def main(app_config=None):
         print(f"subroutine_2 for 0 is " + str(x))
         if x < (len(other_bi)+1)/3:
             print(f'0s result is 0')
+            return {
+                "result": 0,
+                'qubitsnetwork': qubitsnetwork
+            }
             break
         elif x> (2*(len(other_bi)+1))/3:
             bi=1
@@ -101,4 +107,8 @@ def main(app_config=None):
             bi=0
         elif x> (2*(len(other_bi)+1))/3:
             print(f'0s result is 1')
+            return {
+                "result": 1,
+                'qubitsnetwork': qubitsnetwork
+            }
             break
