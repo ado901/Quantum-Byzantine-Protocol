@@ -162,11 +162,17 @@ with open('network.yaml', 'r') as file:
     yamlnetwork= yaml.safe_load(file)
 
 nodesreplace=[]
+linksreplace=[]
+linksreplace=yamlnetwork['links']
+for i in linksreplace:
+    i['fidelity']=0.8
+    i['noise_type']= 'Depolarise'
+yamlnetwork['links']=linksreplace
 for i, node in enumerate(yamlnetwork['nodes']): #setto i qubit (dovrebbero combaciare col parametro max_qubits) dentro lo yaml della rete
         qubits=[]
         for j in range(max_qubit):
             qubits.append({'id':j,'t1':0,'t2':0})
-        nodesreplace.append({'gate_fidelity':1.0,'name':node['name'], 'qubits':qubits})
+        nodesreplace.append({'gate_fidelity':0.8,'name':node['name'], 'qubits':qubits})
 yamlnetwork['nodes']=nodesreplace
 with open('network.yaml', 'w') as file:
     yaml.dump(yamlnetwork, file)
