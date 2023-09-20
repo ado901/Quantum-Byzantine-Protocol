@@ -5,7 +5,7 @@ import shutil
 import os
 import yaml
 
-n = 3
+n = 5
 max_qubit=2*n
 print(n/3)
 print((2*n)/3)
@@ -22,58 +22,52 @@ for i in range(n):
         if i!={i}:
             socketlist.append(Socket(name, str(i), log_config=app_config.log_config)) '''
     qc= f'''
-            print(f'start QOCC for {i}')
-            with conn: # differenza rispetto al nodo 0: riceve lo stato ghz e basta
-                print(f'start QC for {i}')
-                e=eprlist[0].recv_keep()[0]
-                m1, m2 = socketlist[0].recv_structured().payload # type: ignore
-                print(f'got {{m1}} and {{m2}} from {{socketlist[0].remote_app_name}}')
-                if m2 == 1:
-                    e.X()
-                if m1 == 1:
-                    e.Z()
-                m= e.measure()
-                conn.flush()
+            print(f'start QC for {i}')
+            # differenza rispetto al nodo 0: riceve lo stato ghz e basta
+            e=eprlist[0].recv_keep()[0]
+            m1, m2 = socketlist[0].recv_structured().payload # type: ignore
+            print(f'{i} got {{m1}} and {{m2}} from {{socketlist[0].remote_app_name}}')
+            if m2 == 1:
+                e.X()
+            if m1 == 1:
+                e.Z()
+            m= e.measure()
+            conn.flush()
             bi=int(m)
             qubitsnetwork={{'received':{{'ghz':m1, 'epr':m2}}, 'corrected':bi}}'''
             
     if i == 0:
         qc= f'''
             
-            print(f'start QOCC for {i}')
-            with conn: #grande differenza rispetto agli altri: genera stato ghz e lo distribuisce con teleport
-                count=0
-                q0=Qubit(conn)
-                count+=1
-                q0.H()
-                qlist=[q0]
-                for i in range(0 ,len(eprlist)): # genero GHZ
-                    q=Qubit(conn)
-                    count+=1
-                    qlist[i].cnot(q)
-                    qlist.append(q)
-                qlist=qlist[1::]
-                for i, epr in enumerate(eprlist): #teleport
-                    e=epr.create_keep()[0]
-                    print(f'created epr with {{socketlist[i].remote_app_name}}')
-                    count+=1
-                    qlist[i].cnot(e)
-                    print(f'cnoted epr of {{socketlist[i].remote_app_name}}')
-                    qlist[i].H()
-                    print(f'H to {{socketlist[i].remote_app_name}}')
-                    m1=qlist[i].measure()
-                    print(f'measured m1')
-                    conn.flush()
-                    m2=e.measure()
-                    print(f'measured m2')
-                    conn.flush()
-                    m1,m2= int(m1), int(m2)
-                    qubitsnetwork.append({{socketlist[i].remote_app_name: {{'ghz':m1, 'epr':m2}}}})
-                    socketlist[i].send_structured(StructuredMessage("Corrections", (m1, m2))) # type: ignore
-                    print(f"sent {{m1}} and {{m2}} to {{socketlist[i].remote_app_name}}")
-                m=q0.measure()
+            print(f'start QC for {i}')
+            #grande differenza rispetto agli altri: genera stato ghz e lo distribuisce con teleport
+            q0=Qubit(conn)
+            q0.H()
+            qlist=[q0]
+            for i in range(0 ,len(eprlist)): # genero GHZ
+                q=Qubit(conn)
+                qlist[i].cnot(q)
+                qlist.append(q)
+            qlist=qlist[1::]
+            for i, epr in enumerate(eprlist): #teleport
+                e=epr.create_keep()[0]
+                print(f'{i} created epr with {{socketlist[i].remote_app_name}}')
+                qlist[i].cnot(e)
+                print(f'{i} cnoted epr of {{socketlist[i].remote_app_name}}')
+                qlist[i].H()
+                print(f'{i} used H to {{socketlist[i].remote_app_name}}')
+                m1=qlist[i].measure()
+                print(f'{i} measured m1')
                 conn.flush()
-                print(f'count is {{count}}')
+                m2=e.measure()
+                print(f'{i} measured m2')
+                conn.flush()
+                m1,m2= int(m1), int(m2)
+                qubitsnetwork.append({{socketlist[i].remote_app_name: {{'ghz':m1, 'epr':m2}}}})
+                socketlist[i].send_structured(StructuredMessage("Corrections", (m1, m2))) # type: ignore
+                print(f"{i} sent {{m1}} and {{m2}} to {{socketlist[i].remote_app_name}}")
+            m=q0.measure()
+            conn.flush()
             bi=int(m)'''
         connection=f'''
     for i in range({n}): # qui invece l'eprsocket va fatto con tutti gli altri nodi
@@ -100,7 +94,9 @@ def main(app_config=None):
         log_config=app_config.log_config,
         epr_sockets=eprlist,
         max_qubits={max_qubit},)
+    l=0
     while (True):
+        print(f'iteration {{l}} for node {i}')
         #routine 1
         x=0
         bi=int(name)%2
@@ -132,9 +128,9 @@ def main(app_config=None):
             print(f'{i}s result is 0')
             return {{
                 "result": 0,
-                'qubitsnetwork': qubitsnetwork
+                'qubitsnetwork': qubitsnetwork,
+                'iteration': l+1
             }}
-            break
         elif x> (2*(len(other_bi)+1))/3:
             bi=1
         
@@ -154,9 +150,10 @@ def main(app_config=None):
             print(f'{i}s result is 1')
             return {{
                 "result": 1,
-                'qubitsnetwork': qubitsnetwork
+                'qubitsnetwork': qubitsnetwork,
+                'iteration': l+1
             }}
-            break''')
+        l+=1''')
 os.system('''netqasm init''')
 with open('network.yaml', 'r') as file:
     yamlnetwork= yaml.safe_load(file)

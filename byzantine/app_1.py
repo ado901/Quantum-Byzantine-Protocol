@@ -11,15 +11,17 @@ def main(app_config=None):
     qubitsnetwork=None
     
     eprlist.append(EPRSocket("0")) # necessita solo di un eprsocket su 0
-    for i in range(3):
+    for i in range(5):
         if i!=1:
             socketlist.append(Socket(name, str(i), log_config=app_config.log_config)) 
     conn=NetQASMConnection(
         app_name=app_config.app_name,
         log_config=app_config.log_config,
         epr_sockets=eprlist,
-        max_qubits=6,)
+        max_qubits=10,)
+    l=0
     while (True):
+        print(f'iteration {l} for node 1')
         #routine 1
         x=0
         bi=int(name)%2
@@ -36,18 +38,17 @@ def main(app_config=None):
             bi=1
         else:
             
-            print(f'start QOCC for 1')
-            with conn: # differenza rispetto al nodo 0: riceve lo stato ghz e basta
-                print(f'start QC for 1')
-                e=eprlist[0].recv_keep()[0]
-                m1, m2 = socketlist[0].recv_structured().payload # type: ignore
-                print(f'got {m1} and {m2} from {socketlist[0].remote_app_name}')
-                if m2 == 1:
-                    e.X()
-                if m1 == 1:
-                    e.Z()
-                m= e.measure()
-                conn.flush()
+            print(f'start QC for 1')
+            # differenza rispetto al nodo 0: riceve lo stato ghz e basta
+            e=eprlist[0].recv_keep()[0]
+            m1, m2 = socketlist[0].recv_structured().payload # type: ignore
+            print(f'1 got {m1} and {m2} from {socketlist[0].remote_app_name}')
+            if m2 == 1:
+                e.X()
+            if m1 == 1:
+                e.Z()
+            m= e.measure()
+            conn.flush()
             bi=int(m)
             qubitsnetwork={'received':{'ghz':m1, 'epr':m2}, 'corrected':bi}
             
@@ -65,9 +66,9 @@ def main(app_config=None):
             print(f'1s result is 0')
             return {
                 "result": 0,
-                'qubitsnetwork': qubitsnetwork
+                'qubitsnetwork': qubitsnetwork,
+                'iteration': l+1
             }
-            break
         elif x> (2*(len(other_bi)+1))/3:
             bi=1
         
@@ -87,6 +88,7 @@ def main(app_config=None):
             print(f'1s result is 1')
             return {
                 "result": 1,
-                'qubitsnetwork': qubitsnetwork
+                'qubitsnetwork': qubitsnetwork,
+                'iteration': l+1
             }
-            break
+        l+=1
