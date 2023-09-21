@@ -1,56 +1,56 @@
 links:
-- fidelity: 0.8
+- fidelity: 0.5
   name: ch0
   node_name1: '4'
   node_name2: '1'
   noise_type: Depolarise
-- fidelity: 0.8
+- fidelity: 0.5
   name: ch1
   node_name1: '4'
   node_name2: '2'
   noise_type: Depolarise
-- fidelity: 0.8
+- fidelity: 0.5
   name: ch2
   node_name1: '4'
   node_name2: '0'
   noise_type: Depolarise
-- fidelity: 0.8
+- fidelity: 0.5
   name: ch3
   node_name1: '4'
   node_name2: '3'
   noise_type: Depolarise
-- fidelity: 0.8
+- fidelity: 0.5
   name: ch4
   node_name1: '1'
   node_name2: '2'
   noise_type: Depolarise
-- fidelity: 0.8
+- fidelity: 0.5
   name: ch5
   node_name1: '1'
   node_name2: '0'
   noise_type: Depolarise
-- fidelity: 0.8
+- fidelity: 0.5
   name: ch6
   node_name1: '1'
   node_name2: '3'
   noise_type: Depolarise
-- fidelity: 0.8
+- fidelity: 0.5
   name: ch7
   node_name1: '2'
   node_name2: '0'
   noise_type: Depolarise
-- fidelity: 0.8
+- fidelity: 0.5
   name: ch8
   node_name1: '2'
   node_name2: '3'
   noise_type: Depolarise
-- fidelity: 0.8
+- fidelity: 0.5
   name: ch9
   node_name1: '0'
   node_name2: '3'
   noise_type: Depolarise
 nodes:
-- gate_fidelity: 0.8
+- gate_fidelity: 0.5
   name: '4'
   qubits:
   - id: 0
@@ -83,7 +83,7 @@ nodes:
   - id: 9
     t1: 0
     t2: 0
-- gate_fidelity: 0.8
+- gate_fidelity: 0.5
   name: '1'
   qubits:
   - id: 0
@@ -116,7 +116,7 @@ nodes:
   - id: 9
     t1: 0
     t2: 0
-- gate_fidelity: 0.8
+- gate_fidelity: 0.5
   name: '2'
   qubits:
   - id: 0
@@ -149,7 +149,7 @@ nodes:
   - id: 9
     t1: 0
     t2: 0
-- gate_fidelity: 0.8
+- gate_fidelity: 0.5
   name: '0'
   qubits:
   - id: 0
@@ -182,7 +182,7 @@ nodes:
   - id: 9
     t1: 0
     t2: 0
-- gate_fidelity: 0.8
+- gate_fidelity: 0.5
   name: '3'
   qubits:
   - id: 0

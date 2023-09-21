@@ -1,10 +1,20 @@
 from netqasm.sdk.external import NetQASMConnection, Socket
 from netqasm.sdk import EPRSocket, build_types, Qubit
 from netqasm.sdk.classical_communication.message import StructuredMessage
+import yaml
 from random import randint
 # setub fast byzantine agreement
 def main(app_config=None):
     assert app_config is not None
+    with open('network.yaml', 'r') as file:
+        yamlnetwork= yaml.safe_load(file)
+    links= yamlnetwork["links"]
+    nodes=yamlnetwork['nodes']
+    nodesetting=None
+    for node in nodes:
+        if node['name']==str(0):
+            nodesetting=node
+            break
     eprlist:list[EPRSocket]=[]
     socketlist: list[Socket]=[]
     name="0"
@@ -107,6 +117,8 @@ def main(app_config=None):
             return {
                 "result": 1,
                 'qubitsnetwork': qubitsnetwork,
-                'iteration': l+1
+                'iteration': l+1,
+                'links': links,
+                'node_setting': nodesetting
             }
         l+=1

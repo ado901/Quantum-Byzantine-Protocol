@@ -80,10 +80,20 @@ for i in range(n):
         f.write(f'''from netqasm.sdk.external import NetQASMConnection, Socket
 from netqasm.sdk import EPRSocket, build_types, Qubit
 from netqasm.sdk.classical_communication.message import StructuredMessage
+import yaml
 from random import randint
 # setub fast byzantine agreement
 def main(app_config=None):
     assert app_config is not None
+    with open('network.yaml', 'r') as file:
+        yamlnetwork= yaml.safe_load(file)
+    {'links= yamlnetwork["links"]' if i==0 else ''}
+    nodes=yamlnetwork['nodes']
+    nodesetting=None
+    for node in nodes:
+        if node['name']==str({i}):
+            nodesetting=node
+            break
     eprlist:list[EPRSocket]=[]
     socketlist: list[Socket]=[]
     name="{i}"
@@ -151,7 +161,9 @@ def main(app_config=None):
             return {{
                 "result": 1,
                 'qubitsnetwork': qubitsnetwork,
-                'iteration': l+1
+                'iteration': l+1,
+                {"'links': links," if i==0 else ''}
+                'node_setting': nodesetting
             }}
         l+=1''')
 os.system('''netqasm init''')
@@ -162,14 +174,14 @@ nodesreplace=[]
 linksreplace=[]
 linksreplace=yamlnetwork['links']
 for i in linksreplace:
-    i['fidelity']=0.8
+    i['fidelity']=0.5
     i['noise_type']= 'Depolarise'
 yamlnetwork['links']=linksreplace
 for i, node in enumerate(yamlnetwork['nodes']): #setto i qubit (dovrebbero combaciare col parametro max_qubits) dentro lo yaml della rete
         qubits=[]
         for j in range(max_qubit):
             qubits.append({'id':j,'t1':0,'t2':0})
-        nodesreplace.append({'gate_fidelity':0.8,'name':node['name'], 'qubits':qubits})
+        nodesreplace.append({'gate_fidelity':0.5,'name':node['name'], 'qubits':qubits})
 yamlnetwork['nodes']=nodesreplace
 with open('network.yaml', 'w') as file:
     yaml.dump(yamlnetwork, file)
