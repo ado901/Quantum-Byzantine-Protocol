@@ -20,7 +20,7 @@ def main(app_config=None):
     name="0"
     qubitsnetwork=[]
     
-    for i in range(5): # qui invece l'eprsocket va fatto con tutti gli altri nodi
+    for i in range(3): # qui invece l'eprsocket va fatto con tutti gli altri nodi
         if i!=0:
             eprlist.append(EPRSocket(str(i)))
             socketlist.append(Socket(name, str(i), log_config=app_config.log_config)) 
@@ -28,7 +28,7 @@ def main(app_config=None):
         app_name=app_config.app_name,
         log_config=app_config.log_config,
         epr_sockets=eprlist,
-        max_qubits=10,)
+        max_qubits=6,)
     l=0
     while (True):
         print(f'iteration {l} for node 0')
@@ -99,6 +99,8 @@ def main(app_config=None):
             }
         elif x> (2*(len(other_bi)+1))/3:
             bi=1
+        else:
+            bi=0
         
         
         # routine 3
@@ -121,4 +123,6 @@ def main(app_config=None):
                 'links': links,
                 'node_setting': nodesetting
             }
+        else:
+            bi=1
         l+=1

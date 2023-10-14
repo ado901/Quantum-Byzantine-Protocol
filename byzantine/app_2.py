@@ -21,14 +21,14 @@ def main(app_config=None):
     qubitsnetwork=None
     
     eprlist.append(EPRSocket("0")) # necessita solo di un eprsocket su 0
-    for i in range(5):
+    for i in range(3):
         if i!=2:
             socketlist.append(Socket(name, str(i), log_config=app_config.log_config)) 
     conn=NetQASMConnection(
         app_name=app_config.app_name,
         log_config=app_config.log_config,
         epr_sockets=eprlist,
-        max_qubits=10,)
+        max_qubits=6,)
     l=0
     while (True):
         print(f'iteration {l} for node 2')
@@ -81,6 +81,8 @@ def main(app_config=None):
             }
         elif x> (2*(len(other_bi)+1))/3:
             bi=1
+        else:
+            bi=0
         
         
         # routine 3
@@ -103,4 +105,6 @@ def main(app_config=None):
                 
                 'node_setting': nodesetting
             }
+        else:
+            bi=1
         l+=1

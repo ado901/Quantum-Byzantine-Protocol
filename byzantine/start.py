@@ -5,7 +5,7 @@ import shutil
 import os
 import yaml
 
-n = 5
+n = 3
 max_qubit=2*n
 print(n/3)
 print((2*n)/3)
@@ -143,6 +143,8 @@ def main(app_config=None):
             }}
         elif x> (2*(len(other_bi)+1))/3:
             bi=1
+        else:
+            bi=0
         
         
         # routine 3
@@ -165,6 +167,8 @@ def main(app_config=None):
                 {"'links': links," if i==0 else ''}
                 'node_setting': nodesetting
             }}
+        else:
+            bi=1
         l+=1''')
 os.system('''netqasm init''')
 with open('network.yaml', 'r') as file:
@@ -174,14 +178,14 @@ nodesreplace=[]
 linksreplace=[]
 linksreplace=yamlnetwork['links']
 for i in linksreplace:
-    i['fidelity']=0.5
+    i['fidelity']=0.9
     i['noise_type']= 'Depolarise'
 yamlnetwork['links']=linksreplace
 for i, node in enumerate(yamlnetwork['nodes']): #setto i qubit (dovrebbero combaciare col parametro max_qubits) dentro lo yaml della rete
         qubits=[]
         for j in range(max_qubit):
             qubits.append({'id':j,'t1':0,'t2':0})
-        nodesreplace.append({'gate_fidelity':0.5,'name':node['name'], 'qubits':qubits})
+        nodesreplace.append({'gate_fidelity':0.9,'name':node['name'], 'qubits':qubits})
 yamlnetwork['nodes']=nodesreplace
 with open('network.yaml', 'w') as file:
     yaml.dump(yamlnetwork, file)
