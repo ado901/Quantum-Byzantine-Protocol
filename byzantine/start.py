@@ -5,10 +5,17 @@ import shutil
 import os
 import yaml
 
-n = 3
+#params
+n = 7
+t1 = 3.00e+10
+t2 = 1.46e+09
+type_noise = 'Depolarise'
+fidelity = 0.9
+gate_fidelity = 0.9
 max_qubit=2*n
-print(n/3)
-print((2*n)/3)
+
+
+# wipe the folder
 import os, glob
 for filename in glob.glob("app_*"):
     os.remove(filename)
@@ -170,25 +177,28 @@ def main(app_config=None):
         else:
             bi=1
         l+=1''')
+# generate yaml files
 os.system('''netqasm init''')
+
+# set the network
 with open('network.yaml', 'r') as file:
     yamlnetwork= yaml.safe_load(file)
-
 nodesreplace=[]
 linksreplace=[]
 linksreplace=yamlnetwork['links']
 for i in linksreplace:
-    i['fidelity']=0.9
-    i['noise_type']= 'Depolarise'
+    i['fidelity']=fidelity
+    i['noise_type']= type_noise
 yamlnetwork['links']=linksreplace
 for i, node in enumerate(yamlnetwork['nodes']): #setto i qubit (dovrebbero combaciare col parametro max_qubits) dentro lo yaml della rete
         qubits=[]
         for j in range(max_qubit):
-            qubits.append({'id':j,'t1':0,'t2':0})
-        nodesreplace.append({'gate_fidelity':0.9,'name':node['name'], 'qubits':qubits})
+            qubits.append({'id':j,'t1':t1,'t2':t2})
+        nodesreplace.append({'gate_fidelity':gate_fidelity,'name':node['name'], 'qubits':qubits})
 yamlnetwork['nodes']=nodesreplace
 with open('network.yaml', 'w') as file:
     yaml.dump(yamlnetwork, file)
-    
+
+# run the simulation
 os.system('''netqasm simulate''')
     
